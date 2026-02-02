@@ -27,6 +27,13 @@ DETAIL_STANDARDIZATION = {
     'E-vaskery': 'e-vaskeri',
     '7eleven': '7-eleven',
     'Sostrene Grene': 'Soestrene Grene',
+    'Apple': 'iCloud',
+    'Fri bikeshop': 'Fri Bikeshop'
+}
+
+CATEGORY_STANDARDIZATION = {
+    'Viaje': 'Viajes',
+    'Educación': 'Estudios'
 }
 
 DETAIL_TO_SUBCATEGORY = {

@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 
+from utils import *
+
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'gastos')
 
@@ -24,13 +26,32 @@ def read_expenses_file(path: str) -> pd.DataFrame:
 
 
 def process_expenses(df: pd.DataFrame) -> pd.DataFrame:
-    basic_categories = ["Transporte", "Arriendo", "Comida"]
-    df["Fecha"] = pd.to_datetime(df["Fecha"])
-    df["Gasto Básico"] = df["Categoría"].apply(lambda category: category in basic_categories)
     df["Año-Mes"] = df["Fecha"].dt.to_period("M")
     df["Año"] = df["Fecha"].dt.year
     df["Mes"] = df["Fecha"].dt.month
+    # estandarizacion
+    df["Detalle"] = df["Detalle"].replace(DETAIL_STANDARDIZATION)
+    df["Categoría"] = df["Categoría"].replace(CATEGORY_STANDARDIZATION)
+    # editar casos especiales
+    df.loc[(df["Categoría"] == "Cuidado Personal") & (df["Detalle"] == "PureGym"), "Categoría"] = "Gimnasio"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Fonda"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Viaje"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Studenterhuset"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Tivoli"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Evento Navidad"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Un Mercato"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "GitHub"), "Categoría"] = "Estudios"
+    df.loc[(df["Categoría"] == "Trabajo") & (df["Detalle"] == "DHL"), "Categoría"] = "Trámites"
+    df.loc[(df["Categoría"] == "Servicios") & (df["Detalle"] == "iCloud"), "Categoría"] = "Telefonía"
+    df.loc[(df["Categoría"] == "Telefonía") & (df["Detalle"] == "Elgiganten"), "Categoría"] = "Tecnología"
+    df.loc[(df["Categoría"] == "Telefonía") & (df["Detalle"] == "AppleCare"), "Categoría"] = "Tecnología"
+
+    basic_categories = ["Transporte", "Arriendo", "Comida", "Telefonía"]
+    df["Fecha"] = pd.to_datetime(df["Fecha"])
+    df["Gasto Básico"] = df["Categoría"].apply(lambda category: category in basic_categories)
     return df
+
+
 
 
 if __name__ == "__main__":

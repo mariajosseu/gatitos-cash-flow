@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from utils import *
+from utils import CATEGORY_STANDARDIZATION, DETAIL_STANDARDIZATION, DETAIL_TO_SUBCATEGORY
 
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), 'gastos')
@@ -33,6 +33,14 @@ def process_expenses(df: pd.DataFrame) -> pd.DataFrame:
     df["Detalle"] = df["Detalle"].replace(DETAIL_STANDARDIZATION)
     df["Categoría"] = df["Categoría"].replace(CATEGORY_STANDARDIZATION)
     # editar casos especiales
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Mercadito Navidad"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Aeropuerto"), "Detalle"] = "Cafe aeropuerto"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Revolut"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "UCPH"), "Categoría"] = "Salidas"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "IKEA"), "Detalle"] = "IKEA Restaurant"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Tivoli"), "Detalle"] = "Gasoline Grill Tivoli"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Academic Books"), "Categoría"] = "Ocio"
+    df.loc[(df["Categoría"] == "Comida") & (df["Detalle"] == "Normal"), "Categoría"] = "Cuidado Personal"
     df.loc[(df["Categoría"] == "Cuidado Personal") & (df["Detalle"] == "PureGym"), "Categoría"] = "Gimnasio"
     df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Fonda"), "Categoría"] = "Salidas"
     df.loc[(df["Categoría"] == "Ocio") & (df["Detalle"] == "Viaje"), "Categoría"] = "Salidas"
@@ -45,13 +53,17 @@ def process_expenses(df: pd.DataFrame) -> pd.DataFrame:
     df.loc[(df["Categoría"] == "Servicios") & (df["Detalle"] == "iCloud"), "Categoría"] = "Telefonía"
     df.loc[(df["Categoría"] == "Telefonía") & (df["Detalle"] == "Elgiganten"), "Categoría"] = "Tecnología"
     df.loc[(df["Categoría"] == "Telefonía") & (df["Detalle"] == "AppleCare"), "Categoría"] = "Tecnología"
+    df["Subcategoría"] = df.apply(
+        lambda row: DETAIL_TO_SUBCATEGORY.get(row["Categoría"], {}).get(row["Detalle"], row["Categoría"]),
+        axis=1
+    )
 
-    basic_categories = ["Transporte", "Arriendo", "Comida", "Telefonía"]
+    basic_subcategories = [
+        "Rejsekort", "Rejsebillet", "Swapfiets", "Arriendo", "Supermercado", "Telefonía", "Transporte"
+    ]
     df["Fecha"] = pd.to_datetime(df["Fecha"])
-    df["Gasto Básico"] = df["Categoría"].apply(lambda category: category in basic_categories)
+    df["Gasto Básico"] = df["Subcategoría"].apply(lambda subcategory: subcategory in basic_subcategories)
     return df
-
-
 
 
 if __name__ == "__main__":
